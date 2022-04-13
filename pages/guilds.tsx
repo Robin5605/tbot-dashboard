@@ -1,66 +1,52 @@
-import type {
-    GetServerSideProps,
-    GetServerSidePropsContext,
-    InferGetServerSidePropsType,
-    NextPage,
-} from 'next';
-import { UserCircleIcon } from '@heroicons/react/solid';
-import { ChangeEvent, useState } from 'react';
+import type { GetServerSidePropsContext } from 'next';
 import SearchBox from '../components/SearchBox';
 import axios from 'axios';
 import {
-    RESTAPIPartialCurrentUserGuild,
     RESTGetAPICurrentUserGuildsResult,
     RESTPostOAuth2AccessTokenResult,
     RouteBases,
     Routes,
 } from 'discord-api-types/v10';
-const { client_id, client_secret, redirect_uri } = require('../config.json');
+import { getSession, signIn } from 'next-auth/react';
+const {
+    client_id,
+    client_secret,
+    redirect_uri,
+    oauth2_url,
+} = require('../config.json');
 
 type GuildsPageProps = {
     guilds: RESTGetAPICurrentUserGuildsResult | null;
 };
 
+async function getCurrentUserGuilds(
+    access_token: string
+): Promise<RESTGetAPICurrentUserGuildsResult> {
+    const res = await axios.get(RouteBases.api + Routes.userGuilds(), {
+        headers: { Authorization: 'Bearer ' + access_token },
+    });
+
+    return res.status == 200 ? res.data : null;
+}
+
 export const getServerSideProps = async (
     context: GetServerSidePropsContext
 ) => {
-    if (!context.query) return { props: { guilds: null } };
-    if (typeof context.query.code !== 'string')
-        return { props: { guilds: null } };
-    const { code } = context.query;
-
-    const baseURL = RouteBases.api;
-    const data = new URLSearchParams({
-        client_id,
-        client_secret,
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri,
-    });
-
-    const tokenRes = await axios.post(
-        baseURL + Routes.oauth2TokenExchange(),
-        data,
-        {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+    const session = await getSession(context);
+    if (!session) {
+        console.log('No sessoin, redirecting...');
+        return {
+            redirect: {
+                destination: oauth2_url,
+                permanent: false,
             },
-        }
-    );
+        };
+    }
 
-    const token = (tokenRes.data as RESTPostOAuth2AccessTokenResult)
-        .access_token;
-
-    const guildsRes = await axios.get(baseURL + Routes.userGuilds(), {
-        headers: { Authorization: 'Bearer ' + token },
-    });
-
-    const guilds: RESTGetAPICurrentUserGuildsResult = guildsRes.data;
+    const accessToken = session.accessToken as string;
 
     return {
-        props: {
-            guilds,
-        },
+        props: { guilds: await getCurrentUserGuilds(accessToken) },
     };
 };
 

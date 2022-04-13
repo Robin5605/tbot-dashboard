@@ -16,7 +16,7 @@ type SearchBoxProps = {
 const ListItem = ({ guild }: ListItemProps) => {
     return (
         <Link href={'/guild/' + guild.id}>
-            <div className="flex h-10 w-full cursor-pointer flex-row items-center space-x-4 p-4 py-6 duration-200 hover:bg-indigo-500 hover:text-gray-200 hover:shadow-lg">
+            <div className="flex w-full cursor-pointer flex-row items-center space-x-4 p-4 py-3 duration-200 hover:bg-indigo-500 hover:text-gray-200 hover:shadow-lg">
                 <Image
                     src={getIconURL(guild)}
                     width={40}
@@ -49,22 +49,20 @@ const SearchBox = ({ guilds }: SearchBoxProps) => {
     );
 
     const display = transformed
-        .filter(([lowerCase, item]) => lowerCase.startsWith(value.trim()))
+        .filter(([lowerCase, _]) => lowerCase.startsWith(value.trim()))
         .map(([_, actual]) => actual)
         .map((guild) => <ListItem guild={guild} key={guild.id} />);
 
     return (
-        <div className="h-1/3 w-2/4 rounded-lg bg-gray-200 shadow-lg ring-1 ring-black/10">
+        <div className="h-full w-full overflow-y-scroll bg-gray-200 shadow-lg ring-1 ring-black/10 md:h-3/4 md:w-3/4 md:rounded-lg lg:h-2/3 lg:w-2/4">
             <input
-                className="h-1/6 w-full rounded-t-lg border-b border-black/10 bg-transparent p-2 outline-none"
+                className="w-full rounded-t-lg border-b border-black/10 bg-transparent p-4 outline-none duration-300 focus:border-b-blue-500"
                 placeholder="Search for a guild..."
                 onChange={onChangeHandler}
                 value={value}
             />
 
-            <div className="h-5/6 overflow-y-scroll">
-                {display.length == 0 ? <NoResultsFound /> : display}
-            </div>
+            {display.length == 0 ? <NoResultsFound /> : display}
         </div>
     );
 };
