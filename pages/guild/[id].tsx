@@ -80,7 +80,7 @@ type SidebarProps = {
 const Sidebar = ({ items }: SidebarProps) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     return (
-        <div className=" flex h-screen w-1/5 flex-col bg-gray-800 py-4 shadow-lg">
+        <div className="hidden h-screen w-1/5 bg-gray-800 py-4 shadow-lg lg:flex lg:flex-col">
             {items.map((item, index) => (
                 <SidebarItem
                     key={index}
@@ -91,26 +91,6 @@ const Sidebar = ({ items }: SidebarProps) => {
                     setSelectedIndex={setSelectedIndex}
                 />
             ))}
-        </div>
-    );
-};
-
-const AnnouncementBox = () => {
-    return (
-        <div className="flex w-1/3 flex-col space-y-4 rounded-lg bg-gray-800 p-8 shadow-lg">
-            <h1 className="text-2xl text-gray-200">Create an announcement</h1>
-            <textarea className="h-full w-full resize-none rounded-lg bg-slate-700 p-2 text-white shadow-lg outline-none ring-1 ring-black/10 duration-200 focus:ring-2 focus:ring-blue-500"></textarea>
-            <select className="rounded-lg bg-slate-700 text-gray-100 shadow-lg outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Channel #1</option>
-                <option>Channel #2</option>
-                <option>Channel #3</option>
-                <option>Channel #4</option>
-            </select>
-            <input
-                type="button"
-                value="Send"
-                className="cursor-pointer rounded-lg py-2 text-gray-100 shadow-md ring-2 ring-blue-500/20 duration-200 hover:ring-blue-500"
-            />
         </div>
     );
 };
