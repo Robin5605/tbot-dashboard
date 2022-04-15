@@ -8,12 +8,7 @@ import {
     Routes,
 } from 'discord-api-types/v10';
 import { getSession, signIn } from 'next-auth/react';
-const {
-    client_id,
-    client_secret,
-    redirect_uri,
-    oauth2_url,
-} = require('../config.json');
+const { oauth2_url } = require('../config.json');
 
 type GuildsPageProps = {
     guilds: RESTGetAPICurrentUserGuildsResult | null;
@@ -34,10 +29,9 @@ export const getServerSideProps = async (
 ) => {
     const session = await getSession(context);
     if (!session) {
-        console.log('No sessoin, redirecting...');
         return {
             redirect: {
-                destination: oauth2_url,
+                destination: '/api/auth/signin',
                 permanent: false,
             },
         };

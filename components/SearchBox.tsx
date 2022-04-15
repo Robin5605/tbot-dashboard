@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { RESTAPIPartialCurrentUserGuild } from 'discord-api-types/v10';
 import { getIconURL } from '../utils';
+import ToggleSwitch from './ToggleSwitch';
 
 type ListItemProps = {
     guild: RESTAPIPartialCurrentUserGuild;
@@ -16,14 +17,22 @@ type SearchBoxProps = {
 const ListItem = ({ guild }: ListItemProps) => {
     return (
         <Link href={'/guild/' + guild.id}>
-            <div className="flex w-full cursor-pointer flex-row items-center space-x-4 p-4 py-3 duration-200 hover:bg-indigo-500 hover:text-gray-200 hover:shadow-lg">
-                <Image
-                    src={getIconURL(guild)}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                />
-                <p>{guild.name}</p>
+            <div className="flex w-full cursor-pointer flex-row items-center justify-between p-4 py-3 duration-200 hover:bg-indigo-500 hover:text-gray-200 hover:shadow-lg">
+                <div className="flex flex-row items-center space-x-4">
+                    <Image
+                        src={getIconURL(guild)}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                    />
+                    <p>{guild.name}</p>
+                </div>
+
+                <div className="flex">
+                    <button className="rounded-md bg-blue-600 py-1 px-4 text-white shadow-sm shadow-gray-800 duration-200 hover:bg-blue-500">
+                        Invite
+                    </button>
+                </div>
             </div>
         </Link>
     );
@@ -38,7 +47,8 @@ const NoResultsFound = () => {
 };
 
 const SearchBox = ({ guilds }: SearchBoxProps) => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string>('');
+    const [enabled, setEnabled] = useState<boolean>(false);
 
     function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
         setValue(e.target.value);
@@ -51,6 +61,9 @@ const SearchBox = ({ guilds }: SearchBoxProps) => {
     const display = transformed
         .filter(([lowerCase, _]) => lowerCase.startsWith(value.trim()))
         .map(([_, actual]) => actual)
+        .filter((guild) =>
+            enabled ? (parseInt(guild.permissions) & 32) == 32 : true
+        )
         .map((guild) => <ListItem guild={guild} key={guild.id} />);
 
     return (
@@ -61,6 +74,15 @@ const SearchBox = ({ guilds }: SearchBoxProps) => {
                 onChange={onChangeHandler}
                 value={value}
             />
+            <div className="flex flex-row items-center space-x-4 p-4 text-gray-700">
+                <div>
+                    <ToggleSwitch enabled={enabled} setEnabled={setEnabled} />
+                </div>
+                <p>
+                    Only show guilds where you have the "Manage Server"
+                    permission
+                </p>
+            </div>
 
             {display.length == 0 ? <NoResultsFound /> : display}
         </div>
