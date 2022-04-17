@@ -3,3 +3,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+::-webkit-scrollbar {
+    display: none;
+}
